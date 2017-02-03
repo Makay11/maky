@@ -13,6 +13,10 @@
   },
   "author": "Diogo Pais",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Makay11/maky"
+  },
   "dependencies": {
     "async-map-stream": "^1.1.1",
     "bluebird": "^3.4.7",
