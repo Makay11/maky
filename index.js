@@ -33,8 +33,6 @@ const vinylRead = require("vinyl-read");
 const vinylWrite = require("vinyl-write");
 const watch = require("glob-watcher");
 
-const lme = require("lme"); // TODO get rid of this
-
 /*
      ##         ##     ##
      ##                ##
@@ -153,7 +151,7 @@ maky.print = (formatter = s => s) => files => {
   return files;
 };
 
-maky.error = error => error && lme.e(error.stack || error);
+maky.error = error => error && console.error(error);
 
 maky.include = (...args) => maky.gulp(ignore.include(...args));
 maky.exclude = (...args) => maky.gulp(ignore.exclude(...args));

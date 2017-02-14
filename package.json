@@ -27,7 +27,6 @@
     "gulp-if": "^2.0.2",
     "gulp-ignore": "^2.0.2",
     "gulp-util": "^3.0.8",
-    "lme": "^1.3.2",
     "micromatch": "^2.3.11",
     "pretty-hrtime": "^1.0.3",
     "pump": "^1.0.2",

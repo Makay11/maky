@@ -4,7 +4,6 @@ require("trace");
 require("clarify");
 
 const gulp = require("gulp");
-const lme = require("lme");
 const print = require("gulp-print");
 const pump = require("pump");
 const replace = require("gulp-replace");
@@ -13,7 +12,7 @@ const maky = require("..");
 
 const filter = maky.filter("**/*1.*");
 
-switch ("tasks") {
+switch ("maky") {
   case "maky":
     maky.series(
       maky.src("test/input/**/*.*"),
@@ -60,11 +59,11 @@ switch ("tasks") {
       maky.fromGulp(maky.print(p => "maky: " + p)),
       maky.fromGulp(filter.restore),
       maky.fromGulp(function (files) {
-        files.forEach(file => lme.d("custom (value): " + file.path));
+        files.forEach(file => console.log("custom (value): " + file.path));
         return files;
       }),
       maky.fromGulp(function (files) {
-        files.forEach(file => lme.d("custom (Promise): " + file.path));
+        files.forEach(file => console.log("custom (Promise): " + file.path));
         return Promise.resolve(files);
       }),
       print(p => "after: " + p)
