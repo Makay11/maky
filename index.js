@@ -14,14 +14,17 @@
 
 const Promise = require("bluebird");
 
+const crypto = require("crypto");
+const path = require("path");
+
 const del = require("del");
+const expect = require("code").expect;
 const glob2fp = require("glob2fp");
 const gulpif = require("gulp-if");
 const gutil = require("gulp-util");
 const ignore = require("gulp-ignore");
 const map = require("async-map-stream");
 const micromatch = require("micromatch");
-const path = require("path");
 const prettyHrtime = require("pretty-hrtime");
 const pump = require("pump");
 const streamify = require("stream-array");
@@ -30,7 +33,7 @@ const vinylRead = require("vinyl-read");
 const vinylWrite = require("vinyl-write");
 const watch = require("glob-watcher");
 
-const lme = require("lme");
+const lme = require("lme"); // TODO get rid of this
 
 /*
      ##         ##     ##
@@ -148,7 +151,7 @@ maky.print = (formatter = s => s) => files => {
   files.forEach(file => maky.log(formatter(maky.colors.magenta(path.relative(file.cwd, file.path)))));
 
   return files;
-}
+};
 
 maky.error = error => error && lme.e(error.stack || error);
 
@@ -246,6 +249,52 @@ maky.watch = (patterns, ...tasks) => new Promise((resolve, reject) => {
 
   watch(patterns, () => task().catch(maky.error)).on("ready", resolve);
 });
+
+maky.caches = {};
+
+maky.cache = (cacheName, strategy = "contents") => {
+  expect(["timestamp", "contents", "checksum"]).to.include(strategy);
+
+  return files => {
+    const cache = maky.caches[cacheName] = maky.caches[cacheName] || {};
+
+    return files.filter(file => {
+      if (strategy === "timestamp") {
+        const time = file.stat.mtime.getTime();
+
+        if (!cache[file.path] || cache[file.path] !== time) {
+          cache[file.path] = time;
+
+          return true;
+        }
+
+        return false;
+      }
+      else if (strategy === "contents") {
+        const contents = file.contents;
+
+        if (!cache[file.path] || !cache[file.path].equals(contents)) {
+          cache[file.path] = contents;
+
+          return true;
+        }
+
+        return false;
+      }
+      else if (strategy === "checksum") {
+        const checksum = crypto.createHash("md5").update(file.contents).digest();
+
+        if (!cache[file.path] || !cache[file.path].equals(checksum)) {
+          cache[file.path] = checksum;
+
+          return true;
+        }
+
+        return false;
+      }
+    });
+  };
+};
 
 /*
      ##   ##    ##       ##       ##       ##       ##                       #######                               ##       ##
