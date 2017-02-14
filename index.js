@@ -23,7 +23,6 @@ const map = require("async-map-stream");
 const micromatch = require("micromatch");
 const path = require("path");
 const prettyHrtime = require("pretty-hrtime");
-const print = require("gulp-print");
 const pump = require("pump");
 const streamify = require("stream-array");
 const through2 = require("through2");
@@ -145,7 +144,11 @@ maky.fromGulp = function (transform = (o => o)) {
   });
 };
 
-maky.print = (...args) => maky.gulp(print(...args));
+maky.print = (formatter = s => s) => files => {
+  files.forEach(file => maky.log(formatter(maky.colors.magenta(path.relative(file.cwd, file.path)))));
+
+  return files;
+}
 
 maky.error = error => error && lme.e(error.stack || error);
 
