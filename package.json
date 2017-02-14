@@ -39,6 +39,7 @@
   "devDependencies": {
     "clarify": "^2.0.0",
     "gulp": "^3.9.1",
+    "gulp-print": "^2.0.1",
     "gulp-replace": "^0.5.4",
     "nodemon": "^1.11.0",
     "trace": "^2.4.1"
