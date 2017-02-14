@@ -22,6 +22,7 @@
     "bluebird": "^3.4.7",
     "del": "^2.2.2",
     "glob-watcher": "^3.1.0",
+    "glob2fp": "^1.0.0",
     "gulp-if": "^2.0.2",
     "gulp-ignore": "^2.0.2",
     "gulp-print": "^2.0.1",

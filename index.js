@@ -1,7 +1,6 @@
 "use strict";
 
 /*
-                                           ##
      ######                                ##
      ##   ##
      ##   ##   #####    ######  ##   ##  ####     ## ###    #####    #####
@@ -16,6 +15,7 @@
 const Promise = require("bluebird");
 
 const del = require("del");
+const glob2fp = require("glob2fp");
 const gulpif = require("gulp-if");
 const gutil = require("gulp-util");
 const ignore = require("gulp-ignore");
@@ -34,7 +34,6 @@ const watch = require("glob-watcher");
 const lme = require("lme");
 
 /*
-                ##     ##
      ##         ##     ##
      ##                ##
      ##       ####     ######
@@ -50,12 +49,32 @@ maky.log = gutil.log;
 
 maky.colors = gutil.colors;
 
-maky.read = maky.src = (...args) => vinylRead(...args);
+maky.read = maky.src = (patterns, options) => vinylRead(patterns, options).then(files => {
+  if (!Array.isArray(patterns)) {
+    patterns = [patterns];
+  }
+
+  const bases = glob2fp(patterns);
+
+  files.forEach(file => {
+    bases.some(base => {
+      if (path.relative(file.cwd, file.dirname).indexOf(base) === 0) {
+        file.base = path.join(file.cwd, base);
+
+        return true;
+      }
+
+      return false;
+    })
+  });
+
+  return files;
+});
 
 maky.write = maky.dest = function (writePath) {
   return function (files) {
-    files.forEach(function (file) {
-      file.dirname = path.join(file.base, writePath);
+    files.forEach(file => {
+      file.dirname = path.join(file.cwd, writePath, path.relative(file.base, file.dirname));
     });
 
     return Promise.map(files, writeFile);
@@ -226,7 +245,6 @@ maky.watch = (patterns, ...tasks) => new Promise((resolve, reject) => {
 });
 
 /*
-                ##       ##      ###       ##       ##                                                             ##       ##
      ##   ##    ##       ##       ##       ##       ##                       #######                               ##       ##
      ##   ##    ##                ##                ##                       ##                                    ##
      ##   ##  ######   ####       ##     ####     ######   ##  ##            ##       ##   ##  ## ###    #####   ######   ####      #####   ## ###    #####
