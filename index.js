@@ -185,9 +185,13 @@ maky.filter = condition => {
 
   filter.restore = files => {
     files = files.concat(notMatched);
+    return filter.clear(files);
+  };
+
+  filter.clear = files => {
     notMatched = [];
     return files;
-  };
+  }
 
   return filter;
 };
