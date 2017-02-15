@@ -12,32 +12,33 @@ const maky = require("..");
 
 const filter = maky.filter("**/*1.*");
 
-switch ("tasks") {
+switch ("maky") {
   case "maky":
     maky.series(
       maky.src("test/input/**/*.*"),
-      maky.print(),
+      maky.print("prefix"),
+      maky.print(p => "formatter <" + p + ">"),
       filter,
-      maky.print(p => "filtered: " + p),
+      maky.print("filtered"),
       filter.restore,
-      maky.print(p => "restored: " + p),
-      maky.if(true, maky.print(p => "true: " + p), maky.print(p => "false: " + p)),
-      maky.if(false, maky.print(p => "true: " + p), maky.print(p => "false: " + p)),
-      maky.if(true, maky.print(p => "true: " + p)),
-      maky.if(false, maky.print(p => "true: " + p)),
+      maky.print("restored"),
+      maky.if(true, maky.print("true"), maky.print("false")),
+      maky.if(false, maky.print("true"), maky.print("false")),
+      maky.if(true, maky.print("true")),
+      maky.if(false, maky.print("true")),
       maky.if(true),
       maky.if(false),
       maky.gulp(replace(" ", "_")),
       maky.dest("test/output"),
       maky.gulp(replace("_", "-")),
       maky.dest("test/output"),
-      maky.print(p => "after replaces: " + p),
+      maky.print("after replaces"),
       maky.del("test/output/**/*.*"),
-      maky.print(p => "after del: " + p),
+      maky.print("after del"),
       maky.parallel(
-        maky.print(p => "1: " + p),
-        maky.print(p => "2: " + p),
-        maky.print(p => "3: " + p),
+        maky.print("1"),
+        maky.print("2"),
+        maky.print("3"),
         files => {
           return new Promise((resolve, reject) => {
             setTimeout(() => {
@@ -47,7 +48,7 @@ switch ("tasks") {
           });
         }
       ),
-      maky.print(p => "after parallel: " + p)
+      maky.print("after parallel")
     ).catch(maky.error);
   break;
 
@@ -56,17 +57,17 @@ switch ("tasks") {
       gulp.src("test/input/**/*.*"),
       print(),
       maky.fromGulp(filter),
-      maky.fromGulp(maky.print(p => "maky: " + p)),
+      maky.fromGulp(maky.print("maky")),
       maky.fromGulp(filter.restore),
       maky.fromGulp(files => {
-        files.forEach(file => console.log("custom (value): " + file.path));
+        files.forEach(file => console.log("custom (value)" + file.path));
         return files;
       }),
       maky.fromGulp(files => {
-        files.forEach(file => console.log("custom (Promise): " + file.path));
+        files.forEach(file => console.log("custom (Promise)" + file.path));
         return Promise.resolve(files);
       }),
-      print(p => "after: " + p)
+      print("after")
     ], maky.error);
   break;
 
@@ -77,21 +78,21 @@ switch ("tasks") {
         maky.cache("tasks"),
         maky.print(),
         filter,
-        maky.print(p => "filtered: " + p),
+        maky.print("filtered"),
         filter.restore,
-        maky.print(p => "restored: " + p),
+        maky.print("restored"),
         maky.exclude("test/input/**/*2.*"),
-        maky.print(p => "after exclude: " + p),
+        maky.print("after exclude"),
         maky.include("test/input/**/*3.*"),
-        maky.print(p => "after include: " + p),
+        maky.print("after include"),
         maky.add("test/input/**/*{1,2}.*"),
-        maky.print(p => "after add: " + p),
+        maky.print("after add"),
         maky.parallel(
-          maky.print(p => "1: " + p),
-          maky.print(p => "2: " + p),
-          maky.print(p => "3: " + p)
+          maky.print("1"),
+          maky.print("2"),
+          maky.print("3")
         ),
-        maky.print(p => "after parallel: " + p)
+        maky.print("after parallel")
       )
     });
 
@@ -107,12 +108,12 @@ switch ("tasks") {
   case "if":
     maky.series(
       maky.src("test/input/**/*.*"),
-      maky.print(p => "before: " + p),
-      maky.if(true, maky.print(p => "if: " + p), maky.print(p => "else: " + p)),
-      maky.if(() => false, maky.print(p => "fn if: " + p), maky.print(p => "fn else: " + p)),
-      maky.if(/test/g, maky.print(p => "regexp: " + p)),
-      maky.if("test/**/subfolder/**/*.*", maky.print(p => "glob: " + p)),
-      maky.print(p => "after: " + p)
+      maky.print("before"),
+      maky.if(true, maky.print("if"), maky.print("else")),
+      maky.if(() => false, maky.print("fn if"), maky.print("fn else")),
+      maky.if(/test/g, maky.print("regexp")),
+      maky.if("test/**/subfolder/**/*.*", maky.print("glob")),
+      maky.print("after")
     )
     .catch(maky.error);
   break;

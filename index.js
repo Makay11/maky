@@ -147,10 +147,17 @@ maky.fromGulp = function (transform = maky.noop) {
   });
 };
 
-maky.print = (formatter = passthrough) => files => {
-  files.forEach(file => maky.log(formatter(maky.colors.magenta(path.relative(file.cwd, file.path)))));
+maky.print = (formatter = passthrough) => {
+  if (is.string(formatter)) {
+    const prefix = formatter;
+    formatter = s => prefix + " " + s;
+  }
 
-  return files;
+  return files => {
+    files.forEach(file => maky.log(formatter(maky.colors.magenta(path.relative(file.cwd, file.path)))));
+
+    return files;
+  };
 };
 
 maky.error = error => error && console.error(error);
