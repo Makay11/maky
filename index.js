@@ -22,7 +22,6 @@ const del = require("del");
 const expect = require("code").expect;
 const glob2fp = require("glob2fp");
 const gutil = require("gulp-util");
-const ignore = require("gulp-ignore");
 const is = require("is_js");
 const map = require("async-map-stream");
 const micromatch = require("micromatch");
@@ -50,7 +49,7 @@ maky.log = gutil.log;
 
 maky.colors = gutil.colors;
 
-maky.noop = files => files;
+maky.noop = passthrough;
 
 maky.read = maky.src = (patterns, options) => vinylRead(patterns, options).then(files => {
   if (is.not.array(patterns)) {
@@ -148,7 +147,7 @@ maky.fromGulp = function (transform = maky.noop) {
   });
 };
 
-maky.print = (formatter = (s => s)) => files => {
+maky.print = (formatter = passthrough) => files => {
   files.forEach(file => maky.log(formatter(maky.colors.magenta(path.relative(file.cwd, file.path)))));
 
   return files;
@@ -156,8 +155,17 @@ maky.print = (formatter = (s => s)) => files => {
 
 maky.error = error => error && console.error(error);
 
-maky.include = (...args) => maky.gulp(ignore.include(...args));
-maky.exclude = (...args) => maky.gulp(ignore.exclude(...args));
+maky.include = condition => {
+  const test = testify(condition);
+
+  return files => files.filter(file => test(file));
+};
+
+maky.exclude = condition => {
+  const test = testify(condition);
+
+  return files => files.filter(file => !test(file));
+};
 
 maky.if = (condition, ifTransform = maky.noop, elseTransform = maky.noop) => files => {
   const matched = [];
@@ -338,4 +346,8 @@ function testify(condition) {
   else {
     return () => condition;
   }
+}
+
+function passthrough(value) {
+  return value;
 }

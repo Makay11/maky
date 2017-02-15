@@ -12,7 +12,7 @@ const maky = require("..");
 
 const filter = maky.filter("**/*1.*");
 
-switch ("if") {
+switch ("tasks") {
   case "maky":
     maky.series(
       maky.src("test/input/**/*.*"),
@@ -38,9 +38,9 @@ switch ("if") {
         maky.print(p => "1: " + p),
         maky.print(p => "2: " + p),
         maky.print(p => "3: " + p),
-        function (files) {
-          return new Promise(function (resolve, reject) {
-            setTimeout(function () {
+        files => {
+          return new Promise((resolve, reject) => {
+            setTimeout(() => {
               console.log("Inside timeout!");
               resolve(files);
             }, 2000);
@@ -58,11 +58,11 @@ switch ("if") {
       maky.fromGulp(filter),
       maky.fromGulp(maky.print(p => "maky: " + p)),
       maky.fromGulp(filter.restore),
-      maky.fromGulp(function (files) {
+      maky.fromGulp(files => {
         files.forEach(file => console.log("custom (value): " + file.path));
         return files;
       }),
-      maky.fromGulp(function (files) {
+      maky.fromGulp(files => {
         files.forEach(file => console.log("custom (Promise): " + file.path));
         return Promise.resolve(files);
       }),
@@ -71,7 +71,7 @@ switch ("if") {
   break;
 
   case "tasks":
-    maky.task("stuff", function () {
+    maky.task("stuff", () => {
       return maky.series(
         maky.src("test/input/**/*.*"),
         maky.cache("tasks"),
@@ -82,7 +82,9 @@ switch ("if") {
         maky.print(p => "restored: " + p),
         maky.exclude("test/input/**/*2.*"),
         maky.print(p => "after exclude: " + p),
-        maky.add("test/input/**/*2.*"),
+        maky.include("test/input/**/*3.*"),
+        maky.print(p => "after include: " + p),
+        maky.add("test/input/**/*{1,2}.*"),
         maky.print(p => "after add: " + p),
         maky.parallel(
           maky.print(p => "1: " + p),
