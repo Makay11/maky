@@ -191,7 +191,7 @@ maky.filter = condition => {
   filter.clear = files => {
     notMatched = [];
     return files;
-  }
+  };
 
   return filter;
 };
