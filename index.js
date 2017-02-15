@@ -17,6 +17,7 @@ const Promise = require("bluebird");
 const crypto = require("crypto");
 const path = require("path");
 
+const cloneRegexp = require("clone-regexp");
 const del = require("del");
 const expect = require("code").expect;
 const glob2fp = require("glob2fp");
@@ -48,6 +49,8 @@ const maky = module.exports;
 maky.log = gutil.log;
 
 maky.colors = gutil.colors;
+
+maky.noop = files => files;
 
 maky.read = maky.src = (patterns, options) => vinylRead(patterns, options).then(files => {
   if (is.not.array(patterns)) {
@@ -94,9 +97,9 @@ maky.write = maky.dest = writePath => {
   };
 };
 
-maky.add = (...args) => (files) => maky.src(...args).then(newFiles => files.concat(newFiles));
+maky.add = (...args) => files => maky.src(...args).then(newFiles => files.concat(newFiles));
 
-maky.del = (...args) => (files) => del(...args).then(() => files);
+maky.del = (...args) => files => del(...args).then(() => files);
 
 maky.gulp = maky.toGulp = function (transform) {
   return function (files) {
@@ -122,7 +125,7 @@ maky.gulp = maky.toGulp = function (transform) {
   };
 };
 
-maky.fromGulp = function (transform = (f => f)) {
+maky.fromGulp = function (transform = maky.noop) {
   const files = [];
 
   return through2.obj(function (file, enc, cb) {
@@ -156,30 +159,11 @@ maky.error = error => error && console.error(error);
 maky.include = (...args) => maky.gulp(ignore.include(...args));
 maky.exclude = (...args) => maky.gulp(ignore.exclude(...args));
 
-maky.if = (condition, ifTransform = (f => f), elseTransform = (f => f)) => files => {
-  let test;
-  let isMatch;
-
-  if (is.function(condition)) {
-    test = condition;
-  }
-  else if (is.regexp(condition)) {
-    test = file => {
-      const result = condition.test(path.relative(file.cwd, file.path));
-      condition.lastIndex = 0;
-      return result;
-    };
-  }
-  else if (is.array(condition) || is.string(condition)) {
-    isMatch = micromatch.matcher(condition);
-    test = file => isMatch(path.relative(file.cwd, file.path));
-  }
-  else {
-    test = () => condition;
-  }
-
+maky.if = (condition, ifTransform = maky.noop, elseTransform = maky.noop) => files => {
   const matched = [];
   const notMatched = [];
+
+  const test = testify(condition);
 
   files.forEach(file => (test(file) ? matched : notMatched).push(file));
 
@@ -253,7 +237,7 @@ maky.series = function (first, ...tasks) {
   };
 };
 
-maky.parallel = (...tasks) => (files) => Promise.map(tasks, task => taskify(task)(files)).then(() => files);
+maky.parallel = (...tasks) => files => Promise.map(tasks, task => taskify(task)(files)).then(() => files);
 
 maky.tasks = {};
 
@@ -336,4 +320,25 @@ maky.cache = (cacheName, strategy = "contents") => {
 
 function taskify(task) {
   return (is.function(task) ? task : maky.tasks[task]);
+}
+
+function testify(condition) {
+  if (is.function(condition)) {
+    return condition;
+  }
+  else if (is.regexp(condition)) {
+    const regex = cloneRegexp(condition);
+    return file => {
+      const result = regex.test(path.relative(file.cwd, file.path));
+      regex.lastIndex = 0;
+      return result;
+    };
+  }
+  else if (is.array(condition) || is.string(condition)) {
+    const isMatch = micromatch.matcher(condition);
+    return file => isMatch(path.relative(file.cwd, file.path));
+  }
+  else {
+    return () => condition;
+  }
 }

@@ -20,6 +20,7 @@
   "dependencies": {
     "async-map-stream": "^1.1.1",
     "bluebird": "^3.4.7",
+    "clone-regexp": "^1.0.0",
     "code": "^4.0.0",
     "del": "^2.2.2",
     "glob-watcher": "^3.1.0",
