@@ -170,27 +170,20 @@ maky.if = (condition, ifTransform = maky.noop, elseTransform = maky.noop) => fil
   return Promise.all([ifTransform(matched), elseTransform(notMatched)]).then(a => a[0].concat(a[1]));
 };
 
-maky.filter = (patterns, options) => {
-  const isMatch = micromatch.matcher(patterns, options);
+maky.filter = condition => {
+  const test = testify(condition);
 
   let notMatched = [];
 
-  const filter = function (files) {
+  const filter = files => {
     const matched = [];
 
-    files.forEach(function (file) {
-      if (isMatch(path.relative(file.cwd, file.path))) {
-        matched.push(file);
-      }
-      else {
-        notMatched.push(file);
-      }
-    });
+    files.forEach(file => (test(file) ? matched : notMatched).push(file));
 
     return matched;
   };
 
-  filter.restore = function (files) {
+  filter.restore = files => {
     files = files.concat(notMatched);
     notMatched = [];
     return files;
