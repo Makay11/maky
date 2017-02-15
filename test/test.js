@@ -12,7 +12,7 @@ const maky = require("..");
 
 const filter = maky.filter("**/*1.*");
 
-switch ("maky") {
+switch ("if") {
   case "maky":
     maky.series(
       maky.src("test/input/**/*.*"),
@@ -100,5 +100,18 @@ switch ("maky") {
     maky.run("twice").catch(maky.error);
 
     maky.watch("test/input/**/*.*", "stuff");
+  break;
+
+  case "if":
+    maky.series(
+      maky.src("test/input/**/*.*"),
+      maky.print(p => "before: " + p),
+      maky.if(true, maky.print(p => "if: " + p), maky.print(p => "else: " + p)),
+      maky.if(() => false, maky.print(p => "fn if: " + p), maky.print(p => "fn else: " + p)),
+      maky.if(/test/g, maky.print(p => "regexp: " + p)),
+      maky.if("test/**/subfolder/**/*.*", maky.print(p => "glob: " + p)),
+      maky.print(p => "after: " + p)
+    )
+    .catch(maky.error);
   break;
 }
