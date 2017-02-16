@@ -82,8 +82,8 @@ maky.write = maky.dest = writePath => {
     return Promise.map(files, writeFile);
 
     function writeFile(file) {
-      return new Promise(function (resolve, reject) {
-        vinylWrite(file, function (error) {
+      return new Promise((resolve, reject) => {
+        vinylWrite(file, error => {
           if (error) {
             reject(error);
           }
@@ -100,9 +100,9 @@ maky.add = (...args) => files => maky.src(...args).then(newFiles => files.concat
 
 maky.del = (...args) => files => del(...args).then(() => files);
 
-maky.gulp = maky.toGulp = function (transform) {
-  return function (files) {
-    return new Promise(function (resolve, reject) {
+maky.gulp = maky.toGulp = transform => {
+  return files => {
+    return new Promise((resolve, reject) => {
       const transformedFiles = [];
 
       pump([
@@ -112,7 +112,7 @@ maky.gulp = maky.toGulp = function (transform) {
           transformedFiles.push(file);
           return Promise.resolve(file);
         })
-      ], function (error) {
+      ], error => {
         if (error) {
           reject(error);
         }
@@ -124,7 +124,7 @@ maky.gulp = maky.toGulp = function (transform) {
   };
 };
 
-maky.fromGulp = function (transform = maky.noop) {
+maky.fromGulp = (transform = maky.noop) => {
   const files = [];
 
   return through2.obj(function (file, enc, cb) {
@@ -211,7 +211,7 @@ maky.filter = condition => {
   return filter;
 };
 
-maky.series = function (first, ...tasks) {
+maky.series = (first, ...tasks) => {
   if (is.array(first)) {
     first = Promise.resolve(first);
   }
@@ -234,7 +234,7 @@ maky.series = function (first, ...tasks) {
     return promise;
   }
 
-  return function (files) {
+  return files => {
     let promise = Promise.resolve(files);
 
     if (first) {
