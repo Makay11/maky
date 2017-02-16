@@ -331,7 +331,7 @@ maky.cache = (cacheName, strategy = "contents") => {
 */
 
 function taskify(task) {
-  return (is.function(task) ? task : maky.tasks[task]);
+  return (is.function(task) ? task : (expect(maky.tasks[task]).to.be.a.function(), maky.tasks[task]));
 }
 
 function testify(condition) {

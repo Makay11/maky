@@ -12,7 +12,7 @@ const maky = require("..");
 
 const filter = maky.filter("**/*1.*");
 
-switch ("maky") {
+switch ("tasks") {
   case "maky":
     maky.series(
       maky.src("test/input/**/*.*"),
