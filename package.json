@@ -1,6 +1,6 @@
 {
   "name": "maky",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -11,7 +11,11 @@
     "test": "node test/test.js",
     "dev": "nodemon test/test.js"
   },
-  "author": "Diogo Pais",
+  "author": {
+    "name": "Diogo Pais",
+    "email": "dpais11@gmail.com",
+    "url": "http://diogopais.com"
+  },
   "license": "ISC",
   "repository": {
     "type": "git",
