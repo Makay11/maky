@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "maky": "./bin/maky.js"
+    "maky": "bin/maky.js"
   },
   "scripts": {
     "start": "node .",
