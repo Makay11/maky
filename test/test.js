@@ -1,8 +1,5 @@
 "use strict";
 
-require("trace");
-require("clarify");
-
 const gulp = require("gulp");
 const print = require("gulp-print");
 const pump = require("pump");
@@ -12,7 +9,7 @@ const maky = require("..");
 
 const filter = maky.filter("**/*1.*");
 
-switch ("tasks") {
+switch ("maky") {
   case "maky":
     maky.series(
       maky.src("test/input/**/*.*"),
@@ -57,17 +54,17 @@ switch ("tasks") {
       gulp.src("test/input/**/*.*"),
       print(),
       maky.fromGulp(filter),
-      maky.fromGulp(maky.print("maky")),
+      maky.fromGulp(maky.print("maky filtered")),
       maky.fromGulp(filter.restore),
       maky.fromGulp(files => {
-        files.forEach(file => console.log("custom (value)" + file.path));
+        files.forEach(file => console.log("custom (value) " + file.path));
         return files;
       }),
       maky.fromGulp(files => {
-        files.forEach(file => console.log("custom (Promise)" + file.path));
+        files.forEach(file => console.log("custom (Promise) " + file.path));
         return Promise.resolve(files);
       }),
-      print("after")
+      print(s => "after " + s)
     ], maky.error);
   break;
 
