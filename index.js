@@ -248,7 +248,7 @@ maky.watch = (patterns, ...tasks) => new Promise((resolve, reject) => {
 
 maky.caches = {};
 
-maky.cache = (cacheName, strategy = "contents") => {
+maky.changed = (cacheName, strategy = "contents") => {
   expect(["timestamp", "contents", "checksum"]).to.include(strategy);
 
   return files => {
@@ -292,6 +292,13 @@ maky.cache = (cacheName, strategy = "contents") => {
   };
 };
 
+maky.cache = transform => {
+  const cache = {};
+
+  return files => {
+
+  };
+};
 
 function taskify(task) {
   return (is.function(task) ? task : (expect(maky.tasks[task]).to.be.a.function(), maky.tasks[task]));
