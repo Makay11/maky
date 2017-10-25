@@ -132,6 +132,8 @@ maky.print = (formatter = passthrough) => {
   };
 };
 
+maky.replace = (pattern, replacement) => maky.forEach(file => file.contents = Buffer.from(file.contents.toString().replace(pattern, replacement)));
+
 maky.error = error => error && console.error(error);
 
 maky.include = condition => {
