@@ -115,9 +115,9 @@ maky.fromGulp = (transform = maky.noop) => {
   });
 };
 
-maky.forEach = maky.each = (transform = maky.noop) => files => (files.forEach(f), files);
+maky.forEach = maky.each = (f = passthrough) => files => (files.forEach(f), files);
 
-maky.map = (transform = maky.noop) => files => Promise.all(files.map(f));
+maky.map = (f = passthrough) => files => Promise.all(files.map(f));
 
 maky.print = (formatter = passthrough) => {
   if (is.string(formatter)) {
