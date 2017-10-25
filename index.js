@@ -87,7 +87,10 @@ maky.gulp = maky.toGulp = transform => {
       pump([
         streamify(files),
         transform,
-        map(file => transformedFiles.push(file))
+        map((file, callback) => {
+          transformedFiles.push(file);
+          callback();
+        }),
       ], error => {
         if (error) {
           reject(error);
