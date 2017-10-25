@@ -79,29 +79,18 @@ maky.add = (...args) => files => maky.src(...args).then(newFiles => files.concat
 
 maky.del = (...args) => files => del(...args).then(() => files);
 
-maky.gulp = maky.toGulp = transform => {
-  return files => {
-    return new Promise((resolve, reject) => {
-      const transformedFiles = [];
+maky.gulp = maky.toGulp = transform => files => new Promise((resolve, reject) => {
+  const transformedFiles = [];
 
-      pump([
-        streamify(files),
-        transform,
-        map((file, callback) => {
-          transformedFiles.push(file);
-          callback();
-        }),
-      ], error => {
-        if (error) {
-          reject(error);
-        }
-        else {
-          resolve(transformedFiles);
-        }
-      });
-    });
-  };
-};
+  pump([
+    streamify(files),
+    transform,
+    map((file, callback) => {
+      transformedFiles.push(file);
+      callback();
+    }),
+  ], error => error ? reject(error) : resolve(transformedFiles));
+});
 
 maky.fromGulp = (transform = maky.noop) => {
   const files = [];
