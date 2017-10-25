@@ -11,7 +11,7 @@ const expect = require("code").expect;
 const glob2fp = require("glob2fp");
 const gutil = require("gulp-util");
 const is = require("is_js");
-const map = require("async-map-stream");
+const map = require("map-stream");
 const micromatch = require("micromatch");
 const prettyHrtime = require("pretty-hrtime");
 const pump = require("pump");
@@ -87,10 +87,7 @@ maky.gulp = maky.toGulp = transform => {
       pump([
         streamify(files),
         transform,
-        map(file => {
-          transformedFiles.push(file);
-          return Promise.resolve(file);
-        })
+        map(file => transformedFiles.push(file))
       ], error => {
         if (error) {
           reject(error);
