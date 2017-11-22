@@ -83,8 +83,8 @@ switch ("tasks") {
         maky.print("restored"),
         maky.exclude("test/input/**/*2.*"),
         maky.print("after exclude"),
-        maky.include("test/input/**/*3.*"),
-        maky.print("after include"),
+        maky.keep("test/input/**/*3.*"),
+        maky.print("after keep"),
         maky.add("test/input/**/*{1,2}.*"),
         maky.print("after add"),
         maky.parallel(

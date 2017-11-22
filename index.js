@@ -136,7 +136,7 @@ maky.replace = (pattern, replacement) => maky.forEach(file => file.contents = Bu
 
 maky.error = error => error && console.error(error);
 
-maky.include = condition => {
+maky.keep = condition => {
   const test = testify(condition);
 
   return files => files.filter(file => test(file));
