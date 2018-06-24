@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-"use strict";
 
 const path = require("path");
 
-const argv = require("yargs").argv;
+const { argv } = require("yargs");
 
-const maky = require("maky");
+const maky = require(path.join(process.cwd(), "node_modules", "maky"));
 
 require(path.join(process.cwd(), "makyfile"));
 

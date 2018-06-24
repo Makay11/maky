@@ -1,4 +1,4 @@
-"use strict";
+
 
 const Promise = require("bluebird");
 
@@ -46,33 +46,31 @@ maky.read = maky.src = (patterns, options) => vinylRead(patterns, options).then(
       }
 
       return false;
-    })
+    });
   });
 
   return files;
 });
 
-maky.write = maky.dest = writePath => {
-  return files => {
-    files.forEach(file => {
-      file.dirname = path.join(file.cwd, writePath, path.relative(file.base, file.dirname));
-    });
+maky.write = maky.dest = writePath => files => {
+  files.forEach(file => {
+    file.dirname = path.join(file.cwd, writePath, path.relative(file.base, file.dirname));
+  });
 
-    return Promise.map(files, writeFile);
+  return Promise.map(files, writeFile);
 
-    function writeFile(file) {
-      return new Promise((resolve, reject) => {
-        vinylWrite(file, error => {
-          if (error) {
-            reject(error);
-          }
-          else {
-            resolve(file);
-          }
-        });
+  function writeFile(file) {
+    return new Promise((resolve, reject) => {
+      vinylWrite(file, error => {
+        if (error) {
+          reject(error);
+        }
+        else {
+          resolve(file);
+        }
       });
-    }
-  };
+    });
+  }
 };
 
 maky.add = (...args) => files => maky.src(...args).then(newFiles => files.concat(newFiles));
@@ -89,29 +87,29 @@ maky.gulp = maky.toGulp = transform => files => new Promise((resolve, reject) =>
       transformedFiles.push(file);
       callback();
     }),
-  ], error => error ? reject(error) : resolve(transformedFiles));
+  ], error => (error ? reject(error) : resolve(transformedFiles)));
 });
 
 maky.fromGulp = (transform = maky.noop) => {
   const files = [];
 
-  return through2.obj(function (file, enc, cb) {
+  return through2.obj((file, enc, cb) => {
     files.push(file);
     cb();
-  }, function (cb) {
+  }, cb => {
     let result;
 
     try {
       result = transform(files);
+
+      Promise.resolve(result)
+        .then(files => files.forEach(file => this.push(file)))
+        .then(cb)
+        .catch(maky.error);
     }
     catch (e) {
-      return cb(e);
+      cb(e);
     }
-
-    Promise.resolve(result)
-    .then(files => files.forEach(file => this.push(file)))
-    .then(cb)
-    .catch(maky.error);
   });
 };
 
@@ -122,7 +120,7 @@ maky.map = (f = passthrough) => files => Promise.all(files.map(f));
 maky.print = (formatter = passthrough) => {
   if (is.string(formatter)) {
     const prefix = formatter;
-    formatter = s => prefix + " " + s;
+    formatter = s => `${prefix} ${s}`;
   }
 
   return files => {
@@ -227,7 +225,7 @@ maky.parallel = (...tasks) => files => Promise.map(tasks, task => taskify(task)(
 
 maky.tasks = {};
 
-maky.task = (taskName, ...tasks) => maky.tasks[taskName] = (files) => {
+maky.task = (taskName, ...tasks) => maky.tasks[taskName] = files => {
   maky.log(`Starting task '${maky.colors.cyan(taskName)}'...`);
   const start = process.hrtime();
 
@@ -320,9 +318,8 @@ function testify(condition) {
     const isMatch = micromatch.matcher(condition);
     return file => isMatch(path.relative(file.cwd, file.path));
   }
-  else {
-    return () => condition;
-  }
+
+  return () => condition;
 }
 
 function passthrough(value) {

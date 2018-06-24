@@ -1,11 +1,9 @@
-"use strict";
+// const maky = require("maky");
 
-const maky = require("maky");
+// maky.task("default", () => {
+//   console.log("I am the default task!");
+// });
 
-maky.task("default", function () {
-  console.log("I am the default task!");
-});
-
-maky.task("build", function () {
-  console.log("I am the build task!");
-});
+// maky.task("build", () => {
+//   console.log("I am the build task!");
+// });
